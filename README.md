@@ -17,29 +17,32 @@ Via Marathon:
         "type": "DOCKER",
         "docker": {
             "image": "tobiassvn/chronos",
-            "network": "BRIDGE",
-            "portMappings": [
-                {
-                    "containerPort": 4400,
-                    "hostPort": 0,
-                    "protocol": "tcp"
-                }
-            ]
+            "network": "HOST"
         }
     },
-    "args": ["--master", "zk://localhost:2181/mesos", "--zk_hosts", "localhost:2181"],
-    "instances": 1,
-    "cpus": 0.5,
+    "args": [
+        "--master", "zk://localhost:2181/mesos",
+        "--zk_hosts", "localhost:2181"
+    ],
+    "instances": 2,
+    "cpus": 0.25,
     "mem": 512,
+    "ports": [4400],
     "healthChecks": [
-        {
-            "protocol": "HTTP",
-            "portIndex": 0,
-            "path": "/",
-            "gracePeriodSeconds": 120,
-            "intervalSeconds": 20,
-            "maxConsecutiveFailures": 3
-        }
+	{
+	    "protocol": "COMMAND",
+	    "command": {
+                "value": "curl -f -X GET http://chronos.marathon.mesos:4400/"
+            },
+	    "gracePeriodSeconds": 120,
+	    "intervalSeconds": 5,
+	    "timeoutSeconds": 5,
+	    "maxConsecutiveFailures": 3
+	}
+    ],
+    "constraints": [
+        ["hostname", "UNIQUE"]
     ]
 }
+
 ```
